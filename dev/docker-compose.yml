@@ -1,0 +1,18 @@
+version: '3'
+services:
+  python:
+    image: scraping_jma
+    container_name: scraping_jma
+    build:
+      context: .
+      dockerfile: Dockerfile 
+    environment:
+      - ROOT=TRUE
+    volumes:
+      - "../:/home/work"
+    tty: true
+
+
+
+
+
