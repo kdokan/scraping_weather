@@ -82,6 +82,7 @@ def scraping_jma_in_target_month(url, year, month):
     # indexを日付データに変換
     data_in_url.index = data_in_url.index+1
     data_in_url.index = str(year) + "-" + str(month) + "-" + data_in_url.index.astype(str)
+    data_in_url.index = pd.to_datetime(data_in_url.index)
 
     return data_in_url
 
@@ -103,10 +104,19 @@ def scraping_jma_daily_data_from_2016_to_latest(PREC_NO, BLOCK_NO):
         url = f"https://www.data.jma.go.jp/stats/etrn/view/daily_s1.php?prec_no=44&block_no=47662&year={year}&month={month}&day=1&view="
         data_jma = pd.concat([data_jma, scraping_jma_in_target_month(url, year, month)])
 
+    # ないデータは不要なので
+    data_jma = data_jma[data_jma.index < today_date.strftime("%Y-%-m-%-d")]
+
     return data_jma
 
 
+
 #%%
+
+##########
+# 実行
+##########
+
 # 東京都 東京のCODE
 PREC_NO = 44
 BLOCK_NO = 47662
@@ -115,18 +125,7 @@ BLOCK_NO = 47662
 data_jma = scraping_jma_daily_data_from_2016_to_latest(PREC_NO, BLOCK_NO)
 
 # %%
-import matplotlib.pyplot as plt
-data_jma.index = pd.to_datetime(data_jma.index)
-plt.plot(data_jma.index, data_jma["平均気温"].astype(float))
+# 今のところ見つかってる表記揺れ修正
+data_jma = data_jma.replace("\s*\)","",regex=True)
+data_jma = data_jma.replace("\s*\]","",regex=True)
 
-# %%
-print(list(data_jma["平均気温"]))
-# %%
-data_jma[data_jma["平均気温"].str.contains("\)")]
-# %%
-data_jma = data_jma.replace("\ ","")
-data_jma[data_jma["平均気温"].str.contains("\)")]
-
-# %%
-data_jma[data_jma.index=="2019-12-3"]
-# %%
