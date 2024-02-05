@@ -86,6 +86,62 @@ def scraping_jma_in_target_month(url, year, month):
 
     return data_in_url
 
+
+
+def modify_spelling(data):
+
+    """
+    function:
+        表記揺れやDBにするための整形を施す
+    args:
+        jmaから抽出してきたdata
+    return:
+        DBに入れられるようなdataframe
+    """
+
+    # 全体に関わる表記揺れ修正 (2019.12.3や9でみられる)
+    data = data.replace("\s*\)","",regex=True)
+    data = data.replace("\s*\]","",regex=True)
+
+    # 降水量の整形
+    ## データがないところは天気が雨ではない日なので降水量0とする
+    data.loc[data["合計降水量"] == "--", "合計降水量"] = 0.0
+    data.loc[data["最大降水量_1時間内"] == "--", "最大降水量_1時間内"] = 0.0
+    data.loc[data["最大降水量_10分間内"] == "--", "最大降水量_10分間内"] = 0.0
+    data.loc[data["降雪量"] == "--", "降雪量"] = 0.0
+    data.loc[data["最深積雪量"] == "--", "最深積雪量"] = 0.0
+
+    # 日照時間の整形
+    data.loc[data["日照時間"] == "×", "日照時間"] = 0.0
+
+    # データ型の辞書
+    modify_dtypes = {
+        "気圧_現地": float,
+        "気圧_海面": float,
+        "合計降水量": float,
+        "最大降水量_1時間内": float,
+        "最大降水量_10分間内": float,
+        "平均気温": float,
+        "最高気温": float,
+        "平均湿度": float,
+        "最小湿度": float,
+        "平均風速": float,
+        "最大風速": float,
+        "最大風速時風向": str,
+        "最大瞬間最大風速": float,
+        "最大瞬間最大風速時風向": str,
+        "日照時間": float,
+        "降雪量": float,
+        "最深積雪量": float,
+        "天気概況_昼": str,
+        "天気概況_夜": str
+    }
+
+
+    data = data.astype(modify_dtypes)
+
+    return data
+
 def scraping_jma_daily_data_from_2016_to_latest(PREC_NO, BLOCK_NO):
     # 今日の日付を取得する
     today = datetime.now()
@@ -107,8 +163,10 @@ def scraping_jma_daily_data_from_2016_to_latest(PREC_NO, BLOCK_NO):
     # ないデータは不要なので
     data_jma = data_jma[data_jma.index < today_date.strftime("%Y-%-m-%-d")]
 
-    return data_jma
+    # 表記揺れやデータ型など整頓
+    data_jma = modify_spelling(data_jma)
 
+    return data_jma
 
 
 #%%
@@ -124,8 +182,15 @@ BLOCK_NO = 47662
 # 東京のデータ取得
 data_jma = scraping_jma_daily_data_from_2016_to_latest(PREC_NO, BLOCK_NO)
 
-# %%
-# 今のところ見つかってる表記揺れ修正
-data_jma = data_jma.replace("\s*\)","",regex=True)
-data_jma = data_jma.replace("\s*\]","",regex=True)
 
+#%%
+data = data_jma
+data
+
+
+# %%
+import matplotlib.pyplot as plt
+plt.plot(data.index, data["平均気温"])
+
+
+# %%
