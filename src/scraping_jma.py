@@ -1,9 +1,4 @@
 
-#%%
-###############
-# ライブラリ
-###############
-
 import pandas as pd
 from datetime import datetime
 import requests
@@ -169,28 +164,3 @@ def scraping_jma_daily_data_from_2016_to_latest(PREC_NO, BLOCK_NO):
     return data_jma
 
 
-#%%
-
-##########
-# 実行
-##########
-
-# 東京都 東京のCODE
-PREC_NO = 44
-BLOCK_NO = 47662
-
-# 東京のデータ取得
-data_jma = scraping_jma_daily_data_from_2016_to_latest(PREC_NO, BLOCK_NO)
-
-
-#%%
-data = data_jma
-data
-
-
-# %%
-import matplotlib.pyplot as plt
-plt.plot(data.index, data["平均気温"])
-
-
-# %%
