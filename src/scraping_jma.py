@@ -137,7 +137,7 @@ def modify_spelling(data):
 
     return data
 
-def scraping_jma_daily_data_from_2016_to_latest(PREC_NO, BLOCK_NO):
+def scraping_jma_daily_data_from_2020_to_latest(PREC_NO, BLOCK_NO):
     # 今日の日付を取得する
     today = datetime.now()
     today_date = today.date()
@@ -145,7 +145,7 @@ def scraping_jma_daily_data_from_2016_to_latest(PREC_NO, BLOCK_NO):
     # 2016年から最新月のデータまで取得する
     data_jma = pd.DataFrame()
 
-    for year in range(2016, today_date.year): # 2016年以降のデータを取得
+    for year in range(2020, today_date.year): # 2020年以降のデータを取得
         for month in range(1, 13): # 1~12月でループ
             url = f"https://www.data.jma.go.jp/stats/etrn/view/daily_s1.php?prec_no={PREC_NO}&block_no={BLOCK_NO}&year={year}&month={month}&day=1&view="
             data_jma = pd.concat([data_jma, scraping_jma_in_target_month(url, year, month)])
